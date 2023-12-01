@@ -1,15 +1,18 @@
 # typevent
 
+[![Unit Tests](https://github.com/sehrgutesoftware/typevent/actions/workflows/test.yml/badge.svg)](https://github.com/sehrgutesoftware/typevent/actions/workflows/test.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/sehrgutesoftware/typevent.svg)](https://pkg.go.dev/github.com/sehrgutesoftware/typevent)
+
 typevent provides type-safe event messaging channels for Go. They can be used to implement Pub/Sub schemes without the need for type assertions, streamlining the application code that uses the event channels.
 
 At the core it consists of a generic `Channel` interface with the following methods:
 
 ```go
 type Channel[E Event] interface {
-	// Emit emits an event of type E on the channel.
-	Emit(E) error
-	// Subscribe registers a handler for events of type E on the channel.
-	Subscribe(ctx context.Context, handler Handler[E]) (Subscription, error)
+    // Emit emits an event of type E on the channel.
+    Emit(E) error
+    // Subscribe registers a handler for events of type E on the channel.
+    Subscribe(ctx context.Context, handler Handler[E]) (Subscription, error)
 }
 ```
 
@@ -17,34 +20,34 @@ The package currently provides one implementation of the interface, using [Redis
 
 ```go
 import (
-	"context"
-	"fmt"
+    "context"
+    "fmt"
 
-	redisclient "github.com/redis/go-redis/v9"
-	"github.com/sehrgutesoftware/typevent/redis"
+    redisclient "github.com/redis/go-redis/v9"
+    "github.com/sehrgutesoftware/typevent/redis"
 )
 
 func ExampleNewChannel() {
     type event string
 
-	// Create a new channel using redis Pub/Sub as the underlying event bus.
-	client := redisclient.NewClient(&redisclient.Options{Addr: "localhost:6379"})
+    // Create a new channel using redis Pub/Sub as the underlying event bus.
+    client := redisclient.NewClient(&redisclient.Options{Addr: "localhost:6379"})
 
     // conf holds the redis client used by the channel
-	conf := redis.NewConfig(client)
+    conf := redis.NewConfig(client)
 
     // This is where we create the channel that can be used to emit and subscribe to events
-	channel := redis.NewChannel[event](conf, "CHANNEL_NAME")
+    channel := redis.NewChannel[event](conf, "CHANNEL_NAME")
 
-	// Register a subscriber for the channel.
-	sub, _ := channel.Subscribe(context.Background(), func(ctx context.Context, ev event) error {
-		fmt.Printf("subscriber says: %s\n", ev)
-		return nil
-	})
-	defer sub.Close()
+    // Register a subscriber for the channel.
+    sub, _ := channel.Subscribe(context.Background(), func(ctx context.Context, ev event) error {
+        fmt.Printf("subscriber says: %s\n", ev)
+        return nil
+    })
+    defer sub.Close()
 
-	// Emit an event on the channel.
-	channel.Emit("Hello World!")
+    // Emit an event on the channel.
+    channel.Emit("Hello World!")
 }
 
 ```
