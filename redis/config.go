@@ -14,7 +14,7 @@ type Config struct {
 	keyPrefix string
 }
 
-// NewConfig returns a new [config] for a redis channel.
+// NewConfig returns a new [Config] for a redis channel.
 func NewConfig(client *redis.Client, opts ...ConfigOption) *Config {
 	c := &Config{
 		client: client,

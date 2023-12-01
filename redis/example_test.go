@@ -24,9 +24,12 @@ func ExampleNewChannel() {
 	conf := redis.NewConfig(client)
 	channel := redis.NewChannel[event](conf, "CHANNEL_NAME")
 
-	// Register a subscriber for the channel.
+	// The WaitGroup is necessary to make the example test pass. In a real application,
+	// you would likely just let the handler run until its context is canceled.
 	wg := sync.WaitGroup{}
 	wg.Add(1)
+
+	// Register a subscriber for the channel.
 	sub, _ := channel.Subscribe(context.Background(), func(ctx context.Context, ev event) error {
 		defer wg.Done()
 		fmt.Printf("subscriber says: %s\n", ev)
@@ -37,6 +40,6 @@ func ExampleNewChannel() {
 	// Emit an event on the channel.
 	channel.Emit("Hello World!")
 
-	wg.Wait()
+	wg.Wait() // again, just there to statisfy the example test
 	// Output: subscriber says: Hello World!
 }

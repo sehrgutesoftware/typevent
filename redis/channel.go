@@ -21,7 +21,7 @@ type channel[E typevent.Event] struct {
 //
 // Redis Pub/Sub is used as the underlying event bus. The events emitted on the channel are passed
 // to all channels subscribed on the same `name` on the same redis server, regardless of the DB
-// they're connected to – see [https://redis.io/docs/interact/pubsub/#database--scoping].
+// they're connected to – see https://redis.io/docs/interact/pubsub/#database--scoping.
 func NewChannel[E typevent.Event](conf *Config, event string) typevent.Channel[E] {
 	return &channel[E]{
 		Config: conf,
